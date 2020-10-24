@@ -33,13 +33,13 @@ const modalsample = `
 `;
 
 const chartColors = {
-	red: 'rgb(255, 99, 132)',
-	orange: 'rgb(255, 159, 64)',
-	yellow: 'rgb(255, 205, 86)',
-	green: 'rgb(75, 192, 192)',
-	blue: 'rgb(54, 162, 235)',
-	purple: 'rgb(153, 102, 255)',
-	grey: 'rgb(201, 203, 207)'
+  red: "rgb(255, 99, 132)",
+  orange: "rgb(255, 159, 64)",
+  yellow: "rgb(255, 205, 86)",
+  green: "rgb(75, 192, 192)",
+  blue: "rgb(54, 162, 235)",
+  purple: "rgb(153, 102, 255)",
+  grey: "rgb(201, 203, 207)",
 };
 let headerLabels = [];
 
@@ -49,60 +49,67 @@ const observer = new MutationObserver((mutation) => {
 });
 
 observer.observe(document.getElementById("historicalData"), {
-  attributes: true
+  attributes: true,
 });
-window.addEventListener('load', () => {
+window.addEventListener("load", () => {
   document.body.innerHTML += modalsample;
 
-  let button = document.createElement('button');
-  button.innerText = 'VISUALIZE';
-  button.setAttribute('data-micromodal-trigger', 'input-modal');
-  
-  
-  document.getElementById('historicalData').parentNode.insertBefore(button, document.getElementById('historicalData'));
+  let button = document.createElement("button");
+  button.innerText = "VISUALIZE";
+  button.setAttribute("data-micromodal-trigger", "input-modal");
+
+  document
+    .getElementById("historicalData")
+    .parentNode.insertBefore(button, document.getElementById("historicalData"));
   MicroModal.init({
-    onShow
+    onShow,
   });
-  document.getElementById('form').addEventListener('submit', onSubmitForm);
+  document.getElementById("form").addEventListener("submit", onSubmitForm);
 });
 
 function onShow() {
-  const table = document.getElementsByTagName('table')[0];
-    tableParent = document.getElementById('historicalData'),
-    headerLabels = getHeaderLabels(table);
+  const table = document.getElementsByTagName("table")[0];
+  (tableParent = document.getElementById("historicalData")),
+    (headerLabels = getHeaderLabels(table));
 
-    const xAxisList = document.getElementById('xAxis');
-    const yAxisList = document.getElementById('yAxis');
+  const xAxisList = document.getElementById("xAxis");
+  const yAxisList = document.getElementById("yAxis");
 
-    headerLabels.forEach((header, index) => {
-      const optionElement = document.createElement('option');
-      optionElement.setAttribute('value', index);
-      optionElement.innerText = header;
-      xAxisList.appendChild(optionElement);
-      yAxisList.appendChild(optionElement.cloneNode(true));
-    });
+  headerLabels.forEach((header, index) => {
+    const optionElement = document.createElement("option");
+    optionElement.setAttribute("value", index);
+    optionElement.innerText = header;
+    xAxisList.appendChild(optionElement);
+    yAxisList.appendChild(optionElement.cloneNode(true));
+  });
 
-    let chartContainer = document.createElement('div');
-    chartContainer.classList.add('chart-container');
-    chartContainer.setAttribute('id', 'chart-container');
-    tableParent.appendChild(chartContainer);
+  let chartContainer = document.createElement("div");
+  chartContainer.classList.add("chart-container");
+  chartContainer.setAttribute("id", "chart-container");
+  tableParent.appendChild(chartContainer);
 }
 
 function onSubmitForm(ev) {
   ev.preventDefault();
   const xIndex = parseInt(ev.target.xAxis.value),
-  yIndex = parseInt(ev.target.yAxis.value),
-  chartType = ev.target.chartType.value;
+    yIndex = parseInt(ev.target.yAxis.value),
+    chartType = ev.target.chartType.value;
 
-  const table = document.getElementsByTagName('table')[0];
+  const table = document.getElementsByTagName("table")[0];
   const data = getColumnValues(table, xIndex, yIndex);
 
-  let chartCanvas = document.createElement('canvas');
-  chartCanvas.setAttribute('id', 'chart');
+  let chartCanvas = document.createElement("canvas");
+  chartCanvas.setAttribute("id", "chart");
 
-  document.getElementById('chart-container').appendChild(chartCanvas);
+  document.getElementById("chart-container").appendChild(chartCanvas);
 
-  drawChart(chartCanvas, chartType, `${headerLabels[xIndex]} vs ${headerLabels[yIndex]}`, data.xAxisLabels, data.yAxisValues);
+  drawChart(
+    chartCanvas,
+    chartType,
+    `${headerLabels[xIndex]} vs ${headerLabels[yIndex]}`,
+    data.xAxisLabels,
+    data.yAxisValues
+  );
 
   MicroModal.close("input-modal");
 }
@@ -127,43 +134,46 @@ function renderVisualizationButtons() {
 // label: string
 */
 function drawChart(container, chartType, label, xAxislabels, yAxisValues) {
-  var chart = new Chart(container, {
+  const chart = new Chart(container, {
     type: chartType,
     data: {
       labels: xAxislabels,
-      datasets: [{
+      datasets: [
+        {
           label: label,
           data: yAxisValues,
           borderWidth: 1,
           fill: false,
-					backgroundColor: chartColors.blue,
-					borderColor: chartColors.blue
-      }]
+          backgroundColor: chartColors.blue,
+          borderColor: chartColors.blue,
+        },
+      ],
     },
     options: {
-      responsive: true
-    }
+      responsive: true,
+    },
   });
   return chart;
 }
 
 function getHeaderLabels(table) {
-  const headers = Array.from(table.getElementsByTagName('th'));
-  const headerLabels = headers.map(header => header.innerText);
+  const headers = Array.from(table.getElementsByTagName("th"));
+  const headerLabels = headers.map((header) => header.innerText);
   return headerLabels;
 }
 
 function getColumnValues(table, xIndex, yIndex) {
-  const rows = table.getElementsByTagName('tr');
-  const xAxisLabels = [], yAxisValues = [];
-  for(let i = 1; i < rows.length; i++ ) {
-    const columnValues = Array.from(rows[i].getElementsByTagName('td'));
+  const rows = table.getElementsByTagName("tr");
+  const xAxisLabels = [],
+    yAxisValues = [];
+  for (let i = 1; i < rows.length; i++) {
+    const columnValues = Array.from(rows[i].getElementsByTagName("td"));
     xAxisLabels.push(columnValues[xIndex].innerText);
     yAxisValues.push(numeral(columnValues[yIndex].innerText).value());
   }
   const data = {
     xAxisLabels,
-    yAxisValues
-  }
+    yAxisValues,
+  };
   return data;
-} 
+}
