@@ -6,7 +6,7 @@
   "icons": {
     "64": "icons/icon.png"
   },
-  "content_scripts": [  
+  "content_scripts": [
     {
       "matches": [
         "<all_urls>"
@@ -15,7 +15,11 @@
       "js": [
         "micromodal.min.js",
         "Chart.min.js",
+        "numeral.min.js",
         "content_script.js"
+      ],
+      "css": [
+        "micromodal.css"
       ]
     }
   ]
