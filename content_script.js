@@ -22,6 +22,7 @@ const modalsample = `
             <option value="line">Line</option>
           </select>
         </form>
+        <p id="error-msg"></p>
       </main>
       <footer class="modal__footer">
         <button class="modal__btn" data-micromodal-close aria-label="Close this dialog window">Cancel</button>
@@ -97,34 +98,50 @@ function onSubmitForm(ev) {
 
   const table = document.getElementsByTagName("table")[0];
   const data = getColumnValues(table, xIndex, yIndex);
+  const isValidData = validateData(data.yAxisValues);
+  if (isValidData) {
+    let chartCanvas = document.createElement("canvas");
+    chartCanvas.setAttribute("id", "chart");
 
-  let chartCanvas = document.createElement("canvas");
-  chartCanvas.setAttribute("id", "chart");
+    document.getElementById("chart-container").appendChild(chartCanvas);
 
-  document.getElementById("chart-container").appendChild(chartCanvas);
+    drawChart(
+      chartCanvas,
+      chartType,
+      `${headerLabels[xIndex]} vs ${headerLabels[yIndex]}`,
+      data.xAxisLabels,
+      data.yAxisValues
+    );
 
-  drawChart(
-    chartCanvas,
-    chartType,
-    `${headerLabels[xIndex]} vs ${headerLabels[yIndex]}`,
-    data.xAxisLabels,
-    data.yAxisValues
+    MicroModal.close("input-modal");
+  } else {
+    document.getElementById("error-msg").innerText =
+      "Please select valid numbers-only Y-axis column";
+  }
+}
+
+// return true if valid data
+function validateData(dataValues) {
+  return !dataValues.some(
+    (val) =>
+      val === null ||
+      val === undefined ||
+      Number.isNaN(val) ||
+      typeof val === "string"
   );
-
-  MicroModal.close("input-modal");
 }
 
 function renderVisualizationButtons() {
-  let tables = document.getElementsByTagName("table");
+  const tableElements = document.getElementsByTagName("table");
 
-  for (let i = 0; i < tables.length; i++) {
+  tableElements.forEach((table) => {
     let button = document.createElement("button");
     button.innerText = "VISUALIZE";
     button.setAttribute("data-micromodal-trigger", "input-modal");
-    let table = tables[i];
+    button.classList.add("visualize-button");
+
     table.parentElement.insertBefore(button, table);
-    // MicroModal.init();
-  }
+  });
 }
 
 /*
@@ -169,7 +186,7 @@ function getColumnValues(table, xIndex, yIndex) {
   for (let i = 1; i < rows.length; i++) {
     const columnValues = Array.from(rows[i].getElementsByTagName("td"));
     xAxisLabels.push(columnValues[xIndex].innerText);
-    yAxisValues.push(numeral(columnValues[yIndex].innerText).value());
+    yAxisValues.push(Number(columnValues[yIndex].innerText.replace(/,/gi, "")));
   }
   const data = {
     xAxisLabels,

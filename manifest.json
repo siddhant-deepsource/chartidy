@@ -15,7 +15,6 @@
       "js": [
         "micromodal.min.js",
         "Chart.min.js",
-        "numeral.min.js",
         "content_script.js"
       ],
       "css": [

@@ -1,5 +1,10 @@
 .chart-container {
-    width: 100%;
-    border: 20px;
-    padding: 20px;
+  width: 100%;
+  border: 20px;
+  padding: 20px;
+}
+.visualize-button {
+  float: right;
+  margin: 5px;
+  padding: 5px;
 }
