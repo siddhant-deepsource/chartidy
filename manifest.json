@@ -1,0 +1,19 @@
+{
+  "manifest_version": 2,
+  "name": "Chartidy",
+  "description": "A chrome extension which helps users visualize table data in charts.",
+  "version": "0.0.1",
+  "icons": {
+    "64": "icons/icon.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.mozilla.org/*"
+      ],
+      "js": [
+        "content_script.js"
+      ]
+    }
+  ]
+}
