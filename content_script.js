@@ -134,16 +134,20 @@ function renderVisualizationButtons() {
     Array.from(document.getElementsByTagName("table")) || [];
 
   tableElements.forEach((table) => {
-    let button = document.createElement("button");
-    button.innerText = "VISUALIZE";
-    button.setAttribute("data-micromodal-trigger", "input-modal");
-    button.classList.add("visualize-button");
-
-    table.parentElement.insertBefore(button, table);
-
-    MicroModal.init({
-      onShow,
-    });
+    // Add button if the table doesn't already have the visualize button
+    if(table.parentElement.getElementsByClassName('visualize-button').length === 0) {
+      let button = document.createElement("button");
+      button.innerText = "VISUALIZE";
+      button.setAttribute("data-micromodal-trigger", "input-modal");
+      button.classList.add("visualize-button");
+      button.setAttribute("id", "visualize-button");
+  
+      table.parentElement.insertBefore(button, table);
+  
+      MicroModal.init({
+        onShow,
+      });
+    }
   });
 }
 

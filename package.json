@@ -6,7 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start:firefox": "web-ext run",
-    "start:chrome": "web-ext run -t chromium"
+    "start:chrome": "web-ext run -t chromium",
+    "lint": "web-ext lint",
+    "build": "web-ext build --ignore-files=package*.json --overwrite-dest"
   },
   "repository": {
     "type": "git",
