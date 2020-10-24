@@ -44,8 +44,8 @@ const chartColors = [
 ];
 let headerLabels = [];
 
+// observe for the table changes and render the Visualize button
 const observer = new MutationObserver(() => {
-  console.log("MutationObserver");
   renderVisualizationButtons();
 });
 
@@ -65,6 +65,7 @@ window.addEventListener("load", () => {
   renderVisualizationButtons();
 });
 
+// Event Handler when the modal is displayed
 function onShow() {
   const table = document.getElementsByTagName("table")[0];
   headerLabels = getHeaderLabels(table);
@@ -88,6 +89,7 @@ function onShow() {
   table.parentElement.appendChild(chartContainer);
 }
 
+// Event Handler for the form on the modal
 function onSubmitForm(ev) {
   ev.preventDefault();
   const xIndex = parseInt(ev.target.xAxis.value),
@@ -135,15 +137,18 @@ function renderVisualizationButtons() {
 
   tableElements.forEach((table) => {
     // Add button if the table doesn't already have the visualize button
-    if(table.parentElement.getElementsByClassName('visualize-button').length === 0) {
+    if (
+      table.parentElement.getElementsByClassName("visualize-button").length ===
+      0
+    ) {
       let button = document.createElement("button");
       button.innerText = "VISUALIZE";
       button.setAttribute("data-micromodal-trigger", "input-modal");
       button.classList.add("visualize-button");
       button.setAttribute("id", "visualize-button");
-  
+
       table.parentElement.insertBefore(button, table);
-  
+
       MicroModal.init({
         onShow,
       });
