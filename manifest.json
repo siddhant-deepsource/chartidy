@@ -6,11 +6,12 @@
   "icons": {
     "64": "icons/icon.png"
   },
-  "content_scripts": [
+  "content_scripts": [  
     {
       "matches": [
         "<all_urls>"
       ],
+      "run_at": "document_end",
       "js": [
         "micromodal.min.js",
         "Chart.min.js",
