@@ -10,14 +10,14 @@ const modalsample = `
         <button class="modal__close" aria-label="Close modal" data-micromodal-close></button>
       </header>
       <main class="modal__content" id="input-modal-content">
-        <p>Please enter the index number of the column from where the data has to be visualized</p>
+        <p>Please select the columns that has to be visualized</p>
         <form id="form">
           <label for="xAxis">X Axis</label>
-          <select name="xAxis" id="xAxis"></select>
+          <select name="xAxis" id="xAxis" class="select-dropdown"></select>
           <label for="yAxis">Y Axis</label>
-          <select name="yAxis" id="yAxis"></select>
+          <select name="yAxis" id="yAxis" class="select-dropdown"></select>
           <label for="chartType">Type of Chart</label>
-          <select name="chartType">
+          <select name="chartType" class="select-dropdown">
             <option value="bar">Bar</option>
             <option value="line">Line</option>
           </select>
@@ -33,48 +33,46 @@ const modalsample = `
 </div>
 `;
 
-const chartColors = {
-  red: "rgb(255, 99, 132)",
-  orange: "rgb(255, 159, 64)",
-  yellow: "rgb(255, 205, 86)",
-  green: "rgb(75, 192, 192)",
-  blue: "rgb(54, 162, 235)",
-  purple: "rgb(153, 102, 255)",
-  grey: "rgb(201, 203, 207)",
-};
+const chartColors = [
+  "rgb(255, 99, 132)",
+  "rgb(255, 159, 64)",
+  "rgb(255, 205, 86)",
+  "rgb(75, 192, 192)",
+  "rgb(54, 162, 235)",
+  "rgb(153, 102, 255)",
+  "rgb(201, 203, 207)",
+];
 let headerLabels = [];
 
-const observer = new MutationObserver((mutation) => {
-  console.log("DOM mutation detected");
+const observer = new MutationObserver(() => {
+  console.log("MutationObserver");
   renderVisualizationButtons();
 });
 
-observer.observe(document.getElementById("historicalData"), {
-  attributes: true,
-});
-window.addEventListener("load", () => {
-  document.body.innerHTML += modalsample;
-
-  let button = document.createElement("button");
-  button.innerText = "VISUALIZE";
-  button.setAttribute("data-micromodal-trigger", "input-modal");
-
-  document
-    .getElementById("historicalData")
-    .parentNode.insertBefore(button, document.getElementById("historicalData"));
-  MicroModal.init({
-    onShow,
+if (document.getElementById("historicalData") !== null) {
+  observer.observe(document.getElementById("historicalData"), {
+    attributes: true,
+    subtree: true,
+    characterData: true,
   });
+}
+
+window.addEventListener("load", () => {
+  const wrapper = document.createElement("div");
+  wrapper.innerHTML = modalsample;
+  document.body.appendChild(wrapper);
   document.getElementById("form").addEventListener("submit", onSubmitForm);
+  renderVisualizationButtons();
 });
 
 function onShow() {
   const table = document.getElementsByTagName("table")[0];
-  (tableParent = document.getElementById("historicalData")),
-    (headerLabels = getHeaderLabels(table));
+  headerLabels = getHeaderLabels(table);
 
   const xAxisList = document.getElementById("xAxis");
   const yAxisList = document.getElementById("yAxis");
+  xAxisList.innerHTML = "";
+  yAxisList.innerHTML = "";
 
   headerLabels.forEach((header, index) => {
     const optionElement = document.createElement("option");
@@ -87,7 +85,7 @@ function onShow() {
   let chartContainer = document.createElement("div");
   chartContainer.classList.add("chart-container");
   chartContainer.setAttribute("id", "chart-container");
-  tableParent.appendChild(chartContainer);
+  table.parentElement.appendChild(chartContainer);
 }
 
 function onSubmitForm(ev) {
@@ -104,7 +102,6 @@ function onSubmitForm(ev) {
     chartCanvas.setAttribute("id", "chart");
 
     document.getElementById("chart-container").appendChild(chartCanvas);
-
     drawChart(
       chartCanvas,
       chartType,
@@ -131,8 +128,10 @@ function validateData(dataValues) {
   );
 }
 
+// Add Visualize button to the top right of the table
 function renderVisualizationButtons() {
-  const tableElements = document.getElementsByTagName("table");
+  const tableElements =
+    Array.from(document.getElementsByTagName("table")) || [];
 
   tableElements.forEach((table) => {
     let button = document.createElement("button");
@@ -141,16 +140,22 @@ function renderVisualizationButtons() {
     button.classList.add("visualize-button");
 
     table.parentElement.insertBefore(button, table);
+
+    MicroModal.init({
+      onShow,
+    });
   });
 }
 
 /*
-// labels: Array<string> - X axis labels
-// data: Array<number>
+// container: DOMElement
 // chartType: string
 // label: string
+// xAxislabels: Array<string> - X axis labels
+// yAxisValues: Array<number>
 */
 function drawChart(container, chartType, label, xAxislabels, yAxisValues) {
+  const chartColor = chartColors[Math.round(Math.random() * 6)];
   const chart = new Chart(container, {
     type: chartType,
     data: {
@@ -161,8 +166,8 @@ function drawChart(container, chartType, label, xAxislabels, yAxisValues) {
           data: yAxisValues,
           borderWidth: 1,
           fill: false,
-          backgroundColor: chartColors.blue,
-          borderColor: chartColors.blue,
+          backgroundColor: chartColor,
+          borderColor: chartColor,
         },
       ],
     },
@@ -173,20 +178,35 @@ function drawChart(container, chartType, label, xAxislabels, yAxisValues) {
   return chart;
 }
 
+// table: DOMElement
 function getHeaderLabels(table) {
-  const headers = Array.from(table.getElementsByTagName("th"));
+  const headers = Array.from(table.getElementsByTagName("th")) || [];
   const headerLabels = headers.map((header) => header.innerText);
   return headerLabels;
 }
 
+/*
+// table: DOMElement
+// xIndex: number
+// yIndex: number 
+*/
 function getColumnValues(table, xIndex, yIndex) {
   const rows = table.getElementsByTagName("tr");
   const xAxisLabels = [],
     yAxisValues = [];
   for (let i = 1; i < rows.length; i++) {
-    const columnValues = Array.from(rows[i].getElementsByTagName("td"));
-    xAxisLabels.push(columnValues[xIndex].innerText);
-    yAxisValues.push(Number(columnValues[yIndex].innerText.replace(/,/gi, "")));
+    const columnValues = Array.from(rows[i].getElementsByTagName("td")) || [];
+    if (columnValues[xIndex] !== undefined) {
+      xAxisLabels.push(columnValues[xIndex].innerText);
+      if (columnValues[yIndex] !== undefined)
+        yAxisValues.push(
+          Number(columnValues[yIndex].innerText.replace(/,/gi, ""))
+        );
+      else {
+        // if yAxis value is not valid then remove the corresponding x axis element
+        xAxisLabels.pop();
+      }
+    }
   }
   const data = {
     xAxisLabels,
