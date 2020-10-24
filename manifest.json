@@ -19,7 +19,8 @@
         "content_script.js"
       ],
       "css": [
-        "micromodal.css"
+        "micromodal.css",
+        "styles.css"
       ]
     }
   ]
