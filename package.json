@@ -1,0 +1,28 @@
+{
+  "name": "chartidy",
+  "version": "0.0.1",
+  "description": "A chrome extension which helps users visualize table data in charts.",
+  "main": "manifest.json",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start:firefox": "web-ext run",
+    "start:chrome": "web-ext run -t chromium"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/devcer/chartidy.git"
+  },
+  "keywords": [
+    "charts",
+    "visualization"
+  ],
+  "author": "Santosh Viswanatham",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/devcer/chartidy/issues"
+  },
+  "homepage": "https://github.com/devcer/chartidy#readme",
+  "dependencies": {
+    "web-ext": "^5.3.0"
+  }
+}

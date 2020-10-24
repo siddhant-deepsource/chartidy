@@ -9,9 +9,11 @@
   "content_scripts": [
     {
       "matches": [
-        "*://*.mozilla.org/*"
+        "<all_urls>"
       ],
       "js": [
+        "micromodal.min.js",
+        "Chart.min.js",
         "content_script.js"
       ]
     }
