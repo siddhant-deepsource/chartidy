@@ -12,15 +12,19 @@ const modalsample = `
       <main class="modal__content" id="input-modal-content">
         <p>Please select the columns that has to be visualized</p>
         <form id="form">
-          <label for="xAxis">X Axis</label>
-          <select name="xAxis" id="xAxis" class="select-dropdown"></select>
-          <label for="yAxis">Y Axis</label>
-          <select name="yAxis" id="yAxis" class="select-dropdown"></select>
-          <label for="chartType">Type of Chart</label>
-          <select name="chartType" class="select-dropdown">
-            <option value="bar">Bar</option>
-            <option value="line">Line</option>
-          </select>
+          <div>
+            <label for="xAxis">X Axis</label>
+            <select name="xAxis" id="xAxis" class="select-dropdown"></select>
+            <label for="yAxis">Y Axis</label>
+            <select name="yAxis" id="yAxis" class="select-dropdown"></select>
+          </div>
+          <div>
+            <label for="chartType">Type of Chart</label>
+            <select name="chartType" class="select-dropdown">
+              <option value="bar">Bar</option>
+              <option value="line">Line</option>
+            </select>
+          </div>
         </form>
         <p id="error-msg"></p>
       </main>
@@ -42,7 +46,7 @@ const chartColors = [
   "rgb(153, 102, 255)",
   "rgb(201, 203, 207)",
 ];
-let headerLabels = [];
+let headerLabels = [], formElement;
 
 // observe for the table changes and render the Visualize button
 const observer = new MutationObserver(() => {
@@ -61,49 +65,27 @@ window.addEventListener("load", () => {
   const wrapper = document.createElement("div");
   wrapper.innerHTML = modalsample;
   document.body.appendChild(wrapper);
-  document.getElementById("form").addEventListener("submit", onSubmitForm);
+  formElement = document.getElementById("form");
+  formElement.addEventListener("submit", onSubmitForm);
+  // render visualize buttons if there are any tables on screen
   renderVisualizationButtons();
 });
-
-// Event Handler when the modal is displayed
-function onShow() {
-  const table = document.getElementsByTagName("table")[0];
-  headerLabels = getHeaderLabels(table);
-
-  const xAxisList = document.getElementById("xAxis");
-  const yAxisList = document.getElementById("yAxis");
-  xAxisList.innerHTML = "";
-  yAxisList.innerHTML = "";
-
-  headerLabels.forEach((header, index) => {
-    const optionElement = document.createElement("option");
-    optionElement.setAttribute("value", index);
-    optionElement.innerText = header;
-    xAxisList.appendChild(optionElement);
-    yAxisList.appendChild(optionElement.cloneNode(true));
-  });
-
-  let chartContainer = document.createElement("div");
-  chartContainer.classList.add("chart-container");
-  chartContainer.setAttribute("id", "chart-container");
-  table.parentElement.appendChild(chartContainer);
-}
 
 // Event Handler for the form on the modal
 function onSubmitForm(ev) {
   ev.preventDefault();
   const xIndex = parseInt(ev.target.xAxis.value),
     yIndex = parseInt(ev.target.yAxis.value),
-    chartType = ev.target.chartType.value;
+    chartType = ev.target.chartType.value,
+    formId = ev.target.dataset.id;
 
   const table = document.getElementsByTagName("table")[0];
   const data = getColumnValues(table, xIndex, yIndex);
   const isValidData = validateData(data.yAxisValues);
   if (isValidData) {
     let chartCanvas = document.createElement("canvas");
-    chartCanvas.setAttribute("id", "chart");
 
-    document.getElementById("chart-container").appendChild(chartCanvas);
+    document.getElementById(`${formId}-chart`).appendChild(chartCanvas);
     drawChart(
       chartCanvas,
       chartType,
@@ -135,22 +117,50 @@ function renderVisualizationButtons() {
   const tableElements =
     Array.from(document.getElementsByTagName("table")) || [];
 
-  tableElements.forEach((table) => {
+  tableElements.forEach((table, index) => {
     // Add button if the table doesn't already have the visualize button
     if (
       table.parentElement.getElementsByClassName("visualize-button").length ===
       0
     ) {
+      let tableId = table.getAttribute("id") || `chartidy_table-${index}`;
+      table.setAttribute("id", tableId);
+      
       let button = document.createElement("button");
       button.innerText = "VISUALIZE";
       button.setAttribute("data-micromodal-trigger", "input-modal");
       button.classList.add("visualize-button");
-      button.setAttribute("id", "visualize-button");
+      button.setAttribute("id", `visualize-button-${index}`);
+      button.setAttribute("data-id", tableId);
 
       table.parentElement.insertBefore(button, table);
+              
+      let chartContainer = document.createElement("div");
+      chartContainer.classList.add("chart-container");
+      chartContainer.setAttribute("id", `${tableId}-chart`);
+      table.parentElement.appendChild(chartContainer);
 
       MicroModal.init({
-        onShow,
+        onShow: (modal, trigger) => {
+          if(trigger.type === "submit") {
+            let triggeredTableId = trigger.dataset.id;
+            form.setAttribute("data-id", triggeredTableId);
+          
+            const xAxisList = document.getElementById("xAxis");
+            const yAxisList = document.getElementById("yAxis");
+            xAxisList.innerHTML = "";
+            yAxisList.innerHTML = "";
+            
+            headerLabels = getHeaderLabels(document.getElementById(triggeredTableId));
+            headerLabels.forEach((header, index) => {
+              const optionElement = document.createElement("option");
+              optionElement.setAttribute("value", index);
+              optionElement.innerText = header;
+              xAxisList.appendChild(optionElement);
+              yAxisList.appendChild(optionElement.cloneNode(true));
+            });
+          }
+        },
       });
     }
   });
