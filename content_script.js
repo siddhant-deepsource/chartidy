@@ -79,7 +79,7 @@ function onSubmitForm(ev) {
     chartType = ev.target.chartType.value,
     formId = ev.target.dataset.id;
 
-  const table = document.getElementsByTagName("table")[0];
+  const table = document.getElementById(formId);
   const data = getColumnValues(table, xIndex, yIndex);
   const isValidData = validateData(data.yAxisValues);
   if (isValidData) {
