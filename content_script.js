@@ -49,11 +49,6 @@ const chartColors = [
 let headerLabels = [],
   formElement;
 
-// observe for the table changes and render the Visualize button
-const observer = new MutationObserver(() => {
-  renderVisualizationButtons();
-});
-
 if (document.getElementById("historicalData") !== null) {
   observer.observe(document.getElementById("historicalData"), {
     attributes: true,
@@ -77,7 +72,7 @@ function drawChart(container, chartType, label, xAxislabels, yAxisValues) {
       labels: xAxislabels,
       datasets: [
         {
-          label: label,
+          label,
           data: yAxisValues,
           borderWidth: 1,
           fill: false,
@@ -152,10 +147,10 @@ function renderVisualizationButtons() {
       table.parentElement.getElementsByClassName("visualize-button").length ===
       0
     ) {
-      let tableId = table.getAttribute("id") || `chartidy_table-${index}`;
+      const tableId = table.getAttribute("id") || `chartidy_table-${index}`;
       table.setAttribute("id", tableId);
 
-      let button = document.createElement("button");
+      const button = document.createElement("button");
       button.innerText = "VISUALIZE";
       button.setAttribute("data-micromodal-trigger", "input-modal");
       button.classList.add("visualize-button");
@@ -164,7 +159,7 @@ function renderVisualizationButtons() {
 
       table.parentElement.insertBefore(button, table);
 
-      let chartContainer = document.createElement("div");
+      const chartContainer = document.createElement("div");
       chartContainer.classList.add("chart-container");
       chartContainer.setAttribute("id", `${tableId}-chart`);
       table.parentElement.appendChild(chartContainer);
@@ -172,7 +167,7 @@ function renderVisualizationButtons() {
       MicroModal.init({
         onShow: (modal, trigger) => {
           if (trigger.type === "submit") {
-            let triggeredTableId = trigger.dataset.id;
+            const triggeredTableId = trigger.dataset.id;
             formElement.setAttribute("data-id", triggeredTableId);
 
             const xAxisList = document.getElementById("xAxis");
@@ -209,7 +204,7 @@ function onSubmitForm(ev) {
   const data = getColumnValues(table, xIndex, yIndex);
   const isValidData = validateData(data.yAxisValues);
   if (isValidData) {
-    let chartCanvas = document.createElement("canvas");
+    const chartCanvas = document.createElement("canvas");
 
     document.getElementById(`${formId}-chart`).appendChild(chartCanvas);
     drawChart(
@@ -234,5 +229,10 @@ window.addEventListener("load", () => {
   formElement = document.getElementById("form");
   formElement.addEventListener("submit", onSubmitForm);
   // render visualize buttons if there are any tables on screen
+  renderVisualizationButtons();
+});
+
+// observe for the table changes and render the Visualize button
+const observer = new MutationObserver(() => {
   renderVisualizationButtons();
 });
