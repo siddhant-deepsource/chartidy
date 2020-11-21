@@ -49,14 +49,6 @@ const chartColors = [
 let headerLabels = [],
   formElement;
 
-if (document.getElementById("historicalData") !== null) {
-  observer.observe(document.getElementById("historicalData"), {
-    attributes: true,
-    subtree: true,
-    characterData: true,
-  });
-}
-
 /*
 // container: DOMElement
 // chartType: string
@@ -236,3 +228,11 @@ window.addEventListener("load", () => {
 const observer = new MutationObserver(() => {
   renderVisualizationButtons();
 });
+
+if (document.getElementById("historicalData") !== null) {
+  observer.observe(document.getElementById("historicalData"), {
+    attributes: true,
+    subtree: true,
+    characterData: true,
+  });
+}
