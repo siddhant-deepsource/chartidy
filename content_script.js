@@ -46,7 +46,8 @@ const chartColors = [
   "rgb(153, 102, 255)",
   "rgb(201, 203, 207)",
 ];
-let headerLabels = [], formElement;
+let headerLabels = [],
+  formElement;
 
 // observe for the table changes and render the Visualize button
 const observer = new MutationObserver(() => {
@@ -58,111 +59,6 @@ if (document.getElementById("historicalData") !== null) {
     attributes: true,
     subtree: true,
     characterData: true,
-  });
-}
-
-window.addEventListener("load", () => {
-  const wrapper = document.createElement("div");
-  wrapper.innerHTML = modalsample;
-  document.body.appendChild(wrapper);
-  formElement = document.getElementById("form");
-  formElement.addEventListener("submit", onSubmitForm);
-  // render visualize buttons if there are any tables on screen
-  renderVisualizationButtons();
-});
-
-// Event Handler for the form on the modal
-function onSubmitForm(ev) {
-  ev.preventDefault();
-  const xIndex = parseInt(ev.target.xAxis.value),
-    yIndex = parseInt(ev.target.yAxis.value),
-    chartType = ev.target.chartType.value,
-    formId = ev.target.dataset.id;
-
-  const table = document.getElementById(formId);
-  const data = getColumnValues(table, xIndex, yIndex);
-  const isValidData = validateData(data.yAxisValues);
-  if (isValidData) {
-    let chartCanvas = document.createElement("canvas");
-
-    document.getElementById(`${formId}-chart`).appendChild(chartCanvas);
-    drawChart(
-      chartCanvas,
-      chartType,
-      `${headerLabels[xIndex]} vs ${headerLabels[yIndex]}`,
-      data.xAxisLabels,
-      data.yAxisValues
-    );
-
-    MicroModal.close("input-modal");
-  } else {
-    document.getElementById("error-msg").innerText =
-      "Please select valid numbers-only Y-axis column";
-  }
-}
-
-// return true if valid data
-function validateData(dataValues) {
-  return !dataValues.some(
-    (val) =>
-      val === null ||
-      val === undefined ||
-      Number.isNaN(val) ||
-      typeof val === "string"
-  );
-}
-
-// Add Visualize button to the top right of the table
-function renderVisualizationButtons() {
-  const tableElements =
-    Array.from(document.getElementsByTagName("table")) || [];
-
-  tableElements.forEach((table, index) => {
-    // Add button if the table doesn't already have the visualize button
-    if (
-      table.parentElement.getElementsByClassName("visualize-button").length ===
-      0
-    ) {
-      let tableId = table.getAttribute("id") || `chartidy_table-${index}`;
-      table.setAttribute("id", tableId);
-      
-      let button = document.createElement("button");
-      button.innerText = "VISUALIZE";
-      button.setAttribute("data-micromodal-trigger", "input-modal");
-      button.classList.add("visualize-button");
-      button.setAttribute("id", `visualize-button-${index}`);
-      button.setAttribute("data-id", tableId);
-
-      table.parentElement.insertBefore(button, table);
-              
-      let chartContainer = document.createElement("div");
-      chartContainer.classList.add("chart-container");
-      chartContainer.setAttribute("id", `${tableId}-chart`);
-      table.parentElement.appendChild(chartContainer);
-
-      MicroModal.init({
-        onShow: (modal, trigger) => {
-          if(trigger.type === "submit") {
-            let triggeredTableId = trigger.dataset.id;
-            form.setAttribute("data-id", triggeredTableId);
-          
-            const xAxisList = document.getElementById("xAxis");
-            const yAxisList = document.getElementById("yAxis");
-            xAxisList.innerHTML = "";
-            yAxisList.innerHTML = "";
-            
-            headerLabels = getHeaderLabels(document.getElementById(triggeredTableId));
-            headerLabels.forEach((header, index) => {
-              const optionElement = document.createElement("option");
-              optionElement.setAttribute("value", index);
-              optionElement.innerText = header;
-              xAxisList.appendChild(optionElement);
-              yAxisList.appendChild(optionElement.cloneNode(true));
-            });
-          }
-        },
-      });
-    }
   });
 }
 
@@ -197,11 +93,15 @@ function drawChart(container, chartType, label, xAxislabels, yAxisValues) {
   return chart;
 }
 
-// table: DOMElement
-function getHeaderLabels(table) {
-  const headers = Array.from(table.getElementsByTagName("th")) || [];
-  const headerLabels = headers.map((header) => header.innerText);
-  return headerLabels;
+// return true if valid data
+function validateData(dataValues) {
+  return !dataValues.some(
+    (val) =>
+      val === null ||
+      val === undefined ||
+      Number.isNaN(val) ||
+      typeof val === "string"
+  );
 }
 
 /*
@@ -217,11 +117,11 @@ function getColumnValues(table, xIndex, yIndex) {
     const columnValues = Array.from(rows[i].getElementsByTagName("td")) || [];
     if (columnValues[xIndex] !== undefined) {
       xAxisLabels.push(columnValues[xIndex].innerText);
-      if (columnValues[yIndex] !== undefined)
+      if (columnValues[yIndex] !== undefined) {
         yAxisValues.push(
           Number(columnValues[yIndex].innerText.replace(/,/gi, ""))
         );
-      else {
+      } else {
         // if yAxis value is not valid then remove the corresponding x axis element
         xAxisLabels.pop();
       }
@@ -233,3 +133,106 @@ function getColumnValues(table, xIndex, yIndex) {
   };
   return data;
 }
+
+// table: DOMElement
+function getHeaderLabels(table) {
+  const headers = Array.from(table.getElementsByTagName("th")) || [];
+  const hLabels = headers.map((header) => header.innerText);
+  return hLabels;
+}
+
+// Add Visualize button to the top right of the table
+function renderVisualizationButtons() {
+  const tableElements =
+    Array.from(document.getElementsByTagName("table")) || [];
+
+  tableElements.forEach((table, index) => {
+    // Add button if the table doesn't already have the visualize button
+    if (
+      table.parentElement.getElementsByClassName("visualize-button").length ===
+      0
+    ) {
+      let tableId = table.getAttribute("id") || `chartidy_table-${index}`;
+      table.setAttribute("id", tableId);
+
+      let button = document.createElement("button");
+      button.innerText = "VISUALIZE";
+      button.setAttribute("data-micromodal-trigger", "input-modal");
+      button.classList.add("visualize-button");
+      button.setAttribute("id", `visualize-button-${index}`);
+      button.setAttribute("data-id", tableId);
+
+      table.parentElement.insertBefore(button, table);
+
+      let chartContainer = document.createElement("div");
+      chartContainer.classList.add("chart-container");
+      chartContainer.setAttribute("id", `${tableId}-chart`);
+      table.parentElement.appendChild(chartContainer);
+
+      MicroModal.init({
+        onShow: (modal, trigger) => {
+          if (trigger.type === "submit") {
+            let triggeredTableId = trigger.dataset.id;
+            formElement.setAttribute("data-id", triggeredTableId);
+
+            const xAxisList = document.getElementById("xAxis");
+            const yAxisList = document.getElementById("yAxis");
+            xAxisList.innerHTML = "";
+            yAxisList.innerHTML = "";
+
+            headerLabels = getHeaderLabels(
+              document.getElementById(triggeredTableId)
+            );
+            headerLabels.forEach((header, i) => {
+              const optionElement = document.createElement("option");
+              optionElement.setAttribute("value", i);
+              optionElement.innerText = header;
+              xAxisList.appendChild(optionElement);
+              yAxisList.appendChild(optionElement.cloneNode(true));
+            });
+          }
+        },
+      });
+    }
+  });
+}
+
+// Event Handler for the form on the modal
+function onSubmitForm(ev) {
+  ev.preventDefault();
+  const xIndex = parseInt(ev.target.xAxis.value, 10),
+    yIndex = parseInt(ev.target.yAxis.value, 10),
+    chartType = ev.target.chartType.value,
+    formId = ev.target.dataset.id;
+
+  const table = document.getElementById(formId);
+  const data = getColumnValues(table, xIndex, yIndex);
+  const isValidData = validateData(data.yAxisValues);
+  if (isValidData) {
+    let chartCanvas = document.createElement("canvas");
+
+    document.getElementById(`${formId}-chart`).appendChild(chartCanvas);
+    drawChart(
+      chartCanvas,
+      chartType,
+      `${headerLabels[xIndex]} vs ${headerLabels[yIndex]}`,
+      data.xAxisLabels,
+      data.yAxisValues
+    );
+
+    MicroModal.close("input-modal");
+  } else {
+    document.getElementById("error-msg").innerText =
+      "Please select valid numbers-only Y-axis column";
+  }
+}
+
+window.addEventListener("load", () => {
+  const wrapper = document.createElement("div");
+  wrapper.innerHTML = modalsample;
+  document.body.appendChild(wrapper);
+  formElement = document.getElementById("form");
+  formElement.addEventListener("submit", onSubmitForm);
+  // render visualize buttons if there are any tables on screen
+  renderVisualizationButtons();
+});
