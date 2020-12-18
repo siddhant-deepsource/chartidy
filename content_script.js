@@ -58,7 +58,7 @@ let headerLabels = [],
 */
 function drawChart(container, chartType, label, xAxislabels, yAxisValues) {
   const chartColor = chartColors[Math.round(Math.random() * 6)];
-  const chart = new Chart(container, {
+  const chart = new Chart(container, { // skipcq: JS-0125
     type: chartType,
     data: {
       labels: xAxislabels,
@@ -156,7 +156,7 @@ function renderVisualizationButtons() {
       chartContainer.setAttribute("id", `${tableId}-chart`);
       table.parentElement.appendChild(chartContainer);
 
-      MicroModal.init({
+      MicroModal.init({ // skipcq: JS-0125
         onShow: (modal, trigger) => {
           if (trigger.type === "submit") {
             const triggeredTableId = trigger.dataset.id;
@@ -207,7 +207,7 @@ function onSubmitForm(ev) {
       data.yAxisValues
     );
 
-    MicroModal.close("input-modal");
+    MicroModal.close("input-modal"); // skipcq: JS-0125
   } else {
     document.getElementById("error-msg").innerText =
       "Please select valid numbers-only Y-axis column";
