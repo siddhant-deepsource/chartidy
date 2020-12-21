@@ -58,7 +58,7 @@ let headerLabels = [],
 */
 function drawChart(container, chartType, label, xAxislabels, yAxisValues) {
   const chartColor = chartColors[Math.round(Math.random() * 6)];
-  const chart = new Chart(container, { // skipcq: JS-0125
+  const chart = new Chart(container, {
     type: chartType,
     data: {
       labels: xAxislabels,
